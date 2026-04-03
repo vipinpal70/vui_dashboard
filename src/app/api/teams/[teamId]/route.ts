@@ -7,14 +7,14 @@ import { verifyToken } from "@/lib/auth";
  */
 
 // GET /api/teams/[teamId]
-export async function GET(req: NextRequest, { params }: { params: { teamId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
     try {
         const decodedUser = verifyToken(req);
         if (!decodedUser || !decodedUser.userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const teamId = params.teamId;
+        const { teamId } = await params;
 
         const team = await prisma.team.findUnique({
             where: { id: teamId },
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: { teamId: stri
 
 
 // PATCH /api/teams/[teamId]
-export async function PATCH(req: NextRequest, { params }: { params: { teamId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
     try {
         const decodedUser = verifyToken(req);
         if (!decodedUser || !decodedUser.userId) {
@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { teamId: st
             return NextResponse.json({ message: "Forbidden: Only admins can update teams" }, { status: 403 });
         }
 
-        const teamId = params.teamId;
+        const { teamId } = await params;
         const { name } = await req.json();
 
         if (!name) {
@@ -87,7 +87,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { teamId: st
 
 
 // DELETE /api/teams/[teamId]
-export async function DELETE(req: NextRequest, { params }: { params: { teamId: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
     try {
         const decodedUser = verifyToken(req);
         if (!decodedUser || !decodedUser.userId) {
@@ -99,7 +99,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { teamId: s
             return NextResponse.json({ message: "Forbidden: Only admins can delete teams" }, { status: 403 });
         }
 
-        const teamId = params.teamId;
+        const { teamId } = await params;
 
         const team = await prisma.team.findUnique({ where: { id: teamId } });
         if (!team || team.organizationId !== caller.organizationId) {

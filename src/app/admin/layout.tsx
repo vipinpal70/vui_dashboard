@@ -1,6 +1,6 @@
-// src/app/admin/layout.tsx
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Sidebar, SidebarToggle } from "@/components/Sidebar";
 import { Bell } from "lucide-react";
 
@@ -10,12 +10,44 @@ export default function AdminLayout({
 	children: React.ReactNode;
 }) {
 	const [collapsed, setCollapsed] = useState(false);
+	const [user, setUser] = useState<{
+		name: string;
+		email: string;
+		avatar: string;
+	} | null>(null);
+
+	useEffect(() => {
+		async function fetchUser() {
+			try {
+				const res = await fetch("/api/me");
+				if (res.ok) {
+					const data = await res.json();
+					if (data.user) {
+						setUser({
+							name: data.user.username,
+							email: data.user.email,
+							avatar: data.user.username.charAt(0).toUpperCase(),
+						});
+					}
+				}
+			} catch (error) {
+				console.error("Failed to fetch user:", error);
+			}
+		}
+		fetchUser();
+	}, []);
 
 	return (
 		<div className="flex h-screen bg-gray-50 overflow-hidden">
 			<Sidebar
 				role="admin"
-				user={{ name: "Sarah Mitchell", email: "sarah@sop.io", avatar: "SM" }}
+				user={
+					user || {
+						name: "Loading...",
+						email: "...",
+						avatar: "?",
+					}
+				}
 				collapsed={collapsed}
 				onCollapse={setCollapsed}
 				onLogout={async () => {

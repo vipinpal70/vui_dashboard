@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
             const perms = await prisma.permission.findMany({
                 where: { action: { in: personalPermissions } }
             });
-            personalPermissionIDs = perms.map((p) => p.id);
+            personalPermissionIDs = perms.map((p: any) => p.id);
         }
 
         // 5. Create or Update the user's Membership in this specific Team.
@@ -161,14 +161,14 @@ export async function GET(req: NextRequest) {
         });
 
         // Shape the response to match what the frontend expects
-        const shaped = memberships.map((m) => ({
+        const shaped = memberships.map((m: any) => ({
             id: m.id,
             userId: m.userId,
             teamId: m.teamId,
             roleName: m.role.name,
             userName: m.user.username,
             userEmail: m.user.email,
-            personalPermissions: m.personalPermissions?.map(p => p.action) || [],
+            personalPermissions: m.personalPermissions?.map((p: any) => p.action) || [],
         }));
 
         return NextResponse.json({ memberships: shaped }, { status: 200 });

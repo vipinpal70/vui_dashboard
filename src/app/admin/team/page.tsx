@@ -1640,6 +1640,52 @@ export default function TeamPage() {
 		}
 	}, []);
 
+	const handleDeleteTeam = async (id: string) => {
+		const team = teams.find((t) => t.id === id);
+		if (!team) return;
+		if (!confirm(`Are you sure you want to delete "${team.name}"? This will also remove all its roles and memberships.`)) return;
+
+		try {
+			const res = await fetch(`/api/teams/${id}`, {
+				method: "DELETE",
+				credentials: "include",
+			});
+			const data = await res.json();
+			if (res.ok) {
+				setTeams((p) => p.filter((t) => t.id !== id));
+				// Also clean up local memberships for this team
+				setMemberships((p) => p.filter((m) => m.teamId !== id));
+				toast.success("Team deleted successfully");
+			} else {
+				toast.error(data.message ?? "Failed to delete team");
+			}
+		} catch (error) {
+			console.error("Delete team error:", error);
+			toast.error("Network error. Please try again.");
+		}
+	};
+
+	const handleDeleteMembership = async (id: string) => {
+		if (!confirm("Remove this member from the team?")) return;
+
+		try {
+			const res = await fetch(`/api/teams/members/${id}`, {
+				method: "DELETE",
+				credentials: "include",
+			});
+			const data = await res.json();
+			if (res.ok) {
+				setMemberships((p) => p.filter((m) => m.id !== id));
+				toast.success("Member removed from team");
+			} else {
+				toast.error(data.message ?? "Failed to remove member");
+			}
+		} catch (error) {
+			console.error("Delete membership error:", error);
+			toast.error("Network error. Please try again.");
+		}
+	};
+
 	useEffect(() => {
 		fetchTeams();
 		fetchMemberships();
@@ -1741,9 +1787,7 @@ export default function TeamPage() {
 								teams={teams}
 								memberships={memberships}
 								onCreateTeam={() => setTeamModal(true)}
-								onDeleteTeam={(id) =>
-									setTeams((p) => p.filter((t) => t.id !== id))
-								}
+								onDeleteTeam={handleDeleteTeam}
 							/>
 						)}
 						{tab === "members" && (
@@ -1751,9 +1795,7 @@ export default function TeamPage() {
 								memberships={memberships}
 								teams={teams}
 								onAddMember={() => setMemberModal(true)}
-								onDelete={(id) =>
-									setMemberships((p) => p.filter((m) => m.id !== id))
-								}
+								onDelete={handleDeleteMembership}
 							/>
 						)}
 						{tab === "roles" && (

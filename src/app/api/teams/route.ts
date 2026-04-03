@@ -27,7 +27,7 @@ async function ensureDefaultRolesExist(): Promise<Record<string, string>> {
 
     // 3. Upsert Roles and tightly couple their permission lists
     for (const [roleName, permList] of Object.entries(rolesConfig)) {
-        const mappedPermIDs = permList.map(p => permissionMap[p]);
+        const mappedPermIDs = permList.map((p: any) => permissionMap[p]);
 
         const existing = await prisma.role.findFirst({
             where: { name: roleName }

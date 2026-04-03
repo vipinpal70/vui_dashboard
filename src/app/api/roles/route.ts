@@ -40,12 +40,12 @@ export async function GET(req: NextRequest) {
             orderBy: { name: "asc" },
         });
 
-        const shaped = roles.map((r) => ({
+        const shaped = roles.map((r: any) => ({
             id: r.id,
             name: r.name,
             organizationId: r.organizationId ?? null,
             isCustom: !!r.organizationId,
-            permissions: r.permissions.map((p) => p.action),
+            permissions: r.permissions.map((p: any) => p.action),
         }));
 
         return NextResponse.json({ roles: shaped }, { status: 200 });

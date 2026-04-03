@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 "use client";
 import { useState } from "react";
 import Link from "next/link";
@@ -37,9 +36,8 @@ const NAV_ITEMS: Record<Role, NavItem[]> = {
 			icon: <LayoutDashboard size={18} />,
 		},
 		{ label: "Team", href: "/admin/team", icon: <UsersRound size={18} /> },
+		{ label: "Users", href: "/admin/users", icon: <Users size={18} /> },
 		{ label: "Clients", href: "/admin/clients", icon: <Building2 size={18} /> },
-		{ label: "SOPs", href: "/admin/sops", icon: <FileText size={18} /> },
-		{ label: "Reviews", href: "/admin/reviews", icon: <UserCheck size={18} /> },
 		{
 			label: "Settings",
 			href: "/admin/settings",
@@ -132,7 +130,7 @@ export const Sidebar = ({
 				className={`
           fixed lg:relative z-30 lg:z-auto
           flex flex-col h-full
-          bg-white border-r border-gray-100
+          bg-whit border-r border-gray-100
           transition-all duration-300 ease-in-out
           ${collapsed ? "w-0 lg:w-16 overflow-hidden" : "w-60"}
         `}
@@ -145,7 +143,7 @@ export const Sidebar = ({
 								<ClipboardList size={14} className="text-white" />
 							</div>
 							<span className="font-bold text-gray-800 tracking-tight text-sm whitespace-nowrap">
-								SOP Manager
+								VUI Dashboard
 							</span>
 						</div>
 					)}
@@ -178,10 +176,9 @@ export const Sidebar = ({
 								className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                   ${collapsed ? "justify-center" : ""}
-                  ${
-										isActive
-											? "bg-blue-50 text-blue-700 font-medium"
-											: "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                  ${isActive
+										? "bg-blue-50 text-blue-700 font-medium"
+										: "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
 									}
                 `}
 							>
@@ -218,7 +215,7 @@ export const Sidebar = ({
 						</div>
 					) : (
 						<div className="flex items-center gap-3">
-							<div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+							<div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
 								{user.avatar}
 							</div>
 							<div className="min-w-0 flex-1">
@@ -232,7 +229,7 @@ export const Sidebar = ({
 							<button
 								onClick={onLogout}
 								title="Log out"
-								className="text-gray-300 hover:text-red-400 transition-colors shrink-0"
+								className="text-black hover:text-red-400 transition-colors shrink-0"
 							>
 								<LogOut size={15} />
 							</button>

@@ -7,14 +7,14 @@ import { verifyToken } from "@/lib/auth";
  */
 
 // GET /api/teams/members/[membershipId]
-export async function GET(req: NextRequest, { params }: { params: { membershipId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ membershipId: string }> }) {
     try {
         const decodedUser = verifyToken(req);
         if (!decodedUser || !decodedUser.userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const membershipId = params.membershipId;
+        const { membershipId } = await params;
 
         const membership = await prisma.membership.findUnique({
             where: { id: membershipId },
@@ -42,14 +42,14 @@ export async function GET(req: NextRequest, { params }: { params: { membershipId
 }
 
 // PATCH /api/teams/members/[membershipId]
-export async function PATCH(req: NextRequest, { params }: { params: { membershipId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ membershipId: string }> }) {
     try {
         const decodedUser = verifyToken(req);
         if (!decodedUser || !decodedUser.userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const membershipId = params.membershipId;
+        const { membershipId } = await params;
         const currentMembership = await prisma.membership.findUnique({
             where: { id: membershipId },
             include: { team: true }
@@ -106,14 +106,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { membership
 }
 
 // DELETE /api/teams/members/[membershipId]
-export async function DELETE(req: NextRequest, { params }: { params: { membershipId: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ membershipId: string }> }) {
     try {
         const decodedUser = verifyToken(req);
         if (!decodedUser || !decodedUser.userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const membershipId = params.membershipId;
+        const { membershipId } = await params;
         const currentMembership = await prisma.membership.findUnique({
             where: { id: membershipId },
             include: { team: true }
