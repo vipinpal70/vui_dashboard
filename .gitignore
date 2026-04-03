@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build output
+/dist/
+/build/
+
+# temporary and logs
+tsc-output.txt
+*.log
+.DS_Store
+
+/src/generated/prisma
+
+# upload data
+/upload-data/
+
+# stray/temp markdown
+.md
+EXPLANATION_UPLOAD.md

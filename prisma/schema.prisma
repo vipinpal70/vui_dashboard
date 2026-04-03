@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  ownerId   String   @db.ObjectId
+  owner     User     @relation(name: "OrgOwner", fields: [ownerId], references: [id])
+  employees User[]   @relation(name: "OrgEmployees")
+  teams     Team[]
+  roles     Role[]
+}
+
+model User {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  username   String
+  email      String    @unique
+  password   String?
+  role       String
+  orgRole    String    @default("member")
+  approved   Boolean   @default(false)
+  approvedAt DateTime?
+  createAt   DateTime  @default(now())
+
+  accessToken        String?
+  refreshToken       String?
+  accessTokenExpiry  DateTime?
+  refreshTokenExpiry DateTime?
+
+  organizationId     String?        @db.ObjectId
+  organization       Organization?  @relation(name: "OrgEmployees", fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ownedOrganizations Organization[] @relation(name: "OrgOwner")
+
+  memberships Membership[]
+}
+
+model Team {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  organizationId String?       @db.ObjectId
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  memberships    Membership[]
+  roles          Role[]
+}
+
+model Membership {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  teamId String @db.ObjectId
+  roleId String @db.ObjectId
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  personalPermissionIDs String[]     @db.ObjectId
+  personalPermissions   Permission[] @relation(fields: [personalPermissionIDs], references: [id])
+
+  @@unique([userId, teamId])
+}
+
+model Role {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  organizationId String?       @db.ObjectId
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  teamId String? @db.ObjectId
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  permissionIDs String[]     @db.ObjectId
+  permissions   Permission[] @relation(fields: [permissionIDs], references: [id])
+
+  memberships Membership[]
+}
+
+model Permission {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  action String @unique
+
+  roleIDs String[] @db.ObjectId
+  roles   Role[]   @relation(fields: [roleIDs], references: [id])
+
+  membershipIDs String[]     @db.ObjectId
+  memberships   Membership[] @relation(fields: [membershipIDs], references: [id])
+}
