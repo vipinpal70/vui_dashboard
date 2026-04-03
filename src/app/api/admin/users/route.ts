@@ -77,9 +77,68 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ message: "User provisioned successfully", user: newuser }, { status: 201 });
-
     } catch (error) {
         console.error("Admin user creation error:", error);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
+}
+
+export async function GET(req: NextRequest) {
+    try {
+        // 1. JWT & Authorization
+        const decodedUser = verifyToken(req);
+        if (!decodedUser || !decodedUser.userId) {
+            return NextResponse.json({ message: "Unauthorized: Invalid or missing token" }, { status: 401 });
+        }
+
+        // Look up the caller in the database to determine their org context
+        const caller = await prisma.user.findUnique({
+            where: { id: decodedUser.userId }
+        });
+
+        // Authorization check: Only Org Admin/Owner or System Admin
+        if (!caller || (caller.orgRole !== "owner" && caller.orgRole !== "admin" && caller.role !== "admin")) {
+            return NextResponse.json(
+                { message: "Forbidden: Only Organization Admins/Owners can review users." },
+                { status: 403 }
+            );
+        }
+
+        if (!caller.organizationId) {
+            return NextResponse.json(
+                { message: "Forbidden: You must belong to an organization to review its users." },
+                { status: 403 }
+            );
+        }
+
+        // 2. Fetch all users in the organization
+        // Include memberships, teams, roles, and personal permissions for deep review
+        const users = await prisma.user.findMany({
+            where: {
+                organizationId: caller.organizationId
+            },
+            include: {
+                memberships: {
+                    include: {
+                        team: true,
+                        role: {
+                            include: {
+                                permissions: true
+                            }
+                        },
+                        personalPermissions: true
+                    }
+                }
+            },
+            orderBy: {
+                createAt: 'desc'
+            }
+        });
+
+        return NextResponse.json({ users }, { status: 200 });
+
+    } catch (error) {
+        console.error("Admin user list error:", error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
