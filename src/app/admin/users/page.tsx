@@ -137,14 +137,14 @@ const MembershipCard = ({
 }) => {
     const presetRoles = roles.filter((r) => !r.organizationId);
     const customRoles = roles.filter((r) => r.organizationId);
-    const rolePerms = roles.find((r) => r.name === draft.roleName)?.permissions?.map((p) => p.action as Perm) ?? [];
+    const rolePerms = roles.find((r) => r.name === draft.roleName)?.permissions ?? [];
 
     return (
         <div className={`rounded-xl border p-4 space-y-3 transition-all ${draft.markedForRemoval
-                ? "border-red-200 bg-red-50/40 opacity-60"
-                : draft.isNew
-                    ? "border-blue-200 bg-blue-50/30"
-                    : "border-gray-100 bg-white shadow-sm"
+            ? "border-red-200 bg-red-50/40 opacity-60"
+            : draft.isNew
+                ? "border-blue-200 bg-blue-50/30"
+                : "border-gray-100 bg-white shadow-sm"
             }`}>
             {/* Card header */}
             <div className="flex items-center justify-between">
@@ -160,8 +160,8 @@ const MembershipCard = ({
                 </div>
                 <button type="button" onClick={onToggleRemove}
                     className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border font-medium transition-all ${draft.markedForRemoval
-                            ? "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
-                            : "bg-red-50 text-red-500 border-red-200 hover:bg-red-100"
+                        ? "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                        : "bg-red-50 text-red-500 border-red-200 hover:bg-red-100"
                         }`}>
                     {draft.markedForRemoval ? <><RefreshCw size={11} /> Undo</> : <><Trash2 size={11} /> Remove</>}
                 </button>
@@ -215,7 +215,7 @@ const MembershipCard = ({
                                 <Shield size={10} className="text-gray-300" /> Default permissions from role
                             </p>
                             <div className="flex flex-wrap gap-1 opacity-50">
-                                {rolePerms.map((p) => <PermBadge key={p} perm={p} />)}
+                                {rolePerms.map((p) => <PermBadge key={p.id} perm={p.action} />)}
                             </div>
                         </div>
                     )}
@@ -223,10 +223,10 @@ const MembershipCard = ({
                     {/* Override toggle */}
                     <div className="pt-2 border-t border-gray-100">
                         <button type="button"
-                            onClick={() => onChange({ ...draft, useOverride: !draft.useOverride, overridePerms: draft.useOverride ? [] : [...rolePerms] })}
+                            onClick={() => onChange({ ...draft, useOverride: !draft.useOverride, overridePerms: draft.useOverride ? [] : rolePerms.map((p) => p.action as Perm) })}
                             className={`flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all w-full ${draft.useOverride
-                                    ? "bg-amber-50 text-amber-700 border-amber-200"
-                                    : "bg-gray-50 text-gray-400 border-gray-200 hover:border-amber-200 hover:text-amber-600"
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
+                                : "bg-gray-50 text-gray-400 border-gray-200 hover:border-amber-200 hover:text-amber-600"
                                 }`}>
                             <div className={`w-4 h-4 rounded flex items-center justify-center border ${draft.useOverride ? "bg-amber-500 border-amber-500" : "border-gray-300"}`}>
                                 {draft.useOverride && <Check size={10} className="text-white" />}
@@ -284,7 +284,7 @@ const EditUserModal = ({
         );
         if (available.length === 0) { toast.error("User is already in all teams."); return; }
         setDrafts([...drafts, {
-            key: Date.now().toString(),
+            key: `new-${Date.now()}-${Math.random()}`,
             teamId: available[0].id,
             roleName: "member",
             useOverride: false,
@@ -437,8 +437,8 @@ const EditUserModal = ({
                             {(["owner", "admin", "member"] as const).map((r) => (
                                 <button key={r} type="button" onClick={() => setOrgRole(r)}
                                     className={`flex-1 py-2.5 rounded-xl text-xs font-medium border transition-all capitalize ${orgRole === r
-                                            ? ORG_ROLE_COLORS[r] + " shadow-sm"
-                                            : "bg-gray-50 text-gray-400 border-gray-200 hover:border-gray-300"
+                                        ? ORG_ROLE_COLORS[r] + " shadow-sm"
+                                        : "bg-gray-50 text-gray-400 border-gray-200 hover:border-gray-300"
                                         }`}>
                                     {r === orgRole && <Check size={10} className="inline mr-1" />}{r}
                                 </button>

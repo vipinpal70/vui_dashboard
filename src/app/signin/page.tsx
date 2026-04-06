@@ -12,7 +12,7 @@ import { toast } from "react-hot-toast";
 const ROLE_REDIRECT: Record<string, string> = {
 	admin: "/admin/dashboard",
 	employee: "/dashboard",
-	client: "/client/dashboard",
+	client: "/client/onboarding-form",
 };
 
 const SignIn = () => {

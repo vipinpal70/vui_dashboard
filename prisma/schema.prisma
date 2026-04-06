@@ -14,7 +14,8 @@ model Organization {
   owner     User     @relation(name: "OrgOwner", fields: [ownerId], references: [id])
   employees User[]   @relation(name: "OrgEmployees")
   teams     Team[]
-  roles     Role[]
+  roles          Role[]
+  clientProfiles ClientProfile[]
 }
 
 model User {
@@ -37,7 +38,8 @@ model User {
   organization       Organization?  @relation(name: "OrgEmployees", fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   ownedOrganizations Organization[] @relation(name: "OrgOwner")
 
-  memberships Membership[]
+  memberships    Membership[]
+  clientProfiles ClientProfile[]
 }
 
 model Team {
@@ -89,4 +91,35 @@ model Permission {
 
   membershipIDs String[]     @db.ObjectId
   memberships   Membership[] @relation(fields: [membershipIDs], references: [id])
+}
+
+model ClientProfile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String @db.ObjectId
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  legalName      String
+  registeredAddress String
+  city String
+  state String
+  postalCode String
+  country String
+  taxId String
+  vatNumber String
+  companyEmail String
+  companyPhone String
+  website String
+  spocName String
+  spocEmail String
+  spocPhone String
+  spocTitle String
+  linkedinUrl String
+  twitterHandle String
+  facebookUrl String
+  instagramHandle String
+  loginEmail String
+  loginPassword String
+  agreedToTerms Boolean
+  signature String
 }
